@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>推箱子关卡编辑器</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>推箱子关卡编辑器</h1>
+      <div class="controls">
+        <label>宽度: <input type="number" v-model.number="newCols" min="3" max="50" /></label>
+        <label>高度: <input type="number" v-model.number="newRows" min="3" max="50" /></label>
+        <label>LevelNum: <input type="number" v-model.number="levelNum" min="1" /></label>
+        <button @click="applyGridSize">调整网格</button>
+        <button @click="resetGrid">重置</button>
+        <button @click="exportCSV">导出 CSV</button>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <aside class="palette">
+        <h3>图块（拖拽到格子）</h3>
+        <div class="tiles">
+          <div class="tile" v-for="t in types" :key="t.type" :draggable="true"
+               :class="{ selected: currentType === t.type }"
+               @dragstart="dragStart(t.type)" @click="selectType(t.type)">
+            <div class="swatch" :class="t.type"></div>
+            <div class="label">{{ t.label }}</div>
+          </div>
+        </div>
+        <div class="info">当前选择: <strong>{{ currentType }}</strong></div>
+        <div class="info">右键删除某个格子</div>
+        <div class="info">悬停格子: <strong>{{ hoverInfo }}</strong></div>
+      </aside>
+
+      <main class="grid-wrap">
+        <div class="grid" @mouseleave="mouseDown=false">
+          <div class="cell" v-for="(cell, idx) in flatGrid" :key="idx"
+               :class="cell.type"
+               :title="cellInfo(cell)"
+               @dragover.prevent
+               @drop="onDrop($event, cell.x, cell.y)"
+               @mousedown.prevent="startPaint(cell.x, cell.y)"
+               @mouseover.prevent="paintIfDown(cell.x, cell.y)"
+               @mouseenter="hoverCell = cell"
+               @mouseleave="hoverCell = null"
+               @mouseup="mouseDown=false"
+               @contextmenu.prevent="clearCell(cell.x, cell.y)">
+            <div class="cell-label">{{ shortLabel(cell.type) }}</div>
+          </div>
+        </div>
+      </main>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
