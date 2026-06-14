@@ -1,4 +1,4 @@
-const { createApp, reactive, computed, ref, onMounted } = Vue;
+const { createApp, reactive, computed, ref, onMounted, toRefs } = Vue;
 
 createApp({
   setup() {
@@ -13,6 +13,8 @@ createApp({
       mouseDown: false,
       hoverCell: null,
       history: [],
+      saveDirName: 'DT_GameDataTable',
+      saveDirHandle: null,
       types: [
         { type: 'Wall', label: 'Wall' },
         { type: 'Box', label: 'Box' },
@@ -146,33 +148,73 @@ createApp({
       applyGridCss();
     }
 
-    function exportCSV(){
-      const rows = [];
-      rows.push(['行命名','LevelNum','X','Y','ActorType'].join(','));
-      let seq = 1;
-      for(let y=0;y<state.rows;y++){
-        for(let x=0;x<state.cols;x++){
-          const actor = state.grid[y][x].type || 'Empty';
-          rows.push([seq, state.levelNum, x, y, actor].join(','));
-          seq++;
-        }
-      }
-      const csv = rows.join('\n');
+    function getExportLevelNum(){
+      const num = Math.max(1, Math.floor(state.levelNum));
+      return num;
+    }
+
+    function downloadCSV(fileName, csv){
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `level_${state.levelNum}.csv`;
+      a.download = fileName;
+      a.setAttribute('download', fileName);
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
     }
 
+    async function chooseSaveDir(){
+      if(!window.showDirectoryPicker){
+        alert('当前浏览器不支持直接选择目录，请使用普通下载。');
+        return;
+      }
+      try {
+        const dirHandle = await window.showDirectoryPicker();
+        state.saveDirHandle = dirHandle;
+        state.saveDirName = dirHandle.name || 'DT_GameDataTable';
+      } catch (err) {
+        console.warn('选择目录已取消或不支持：', err);
+      }
+    }
+
+    async function exportCSV(){
+      const exportLevelNum = getExportLevelNum();
+      const rows = [];
+      rows.push(['行命名','LevelNum','X','Y','ActorType'].join(','));
+      let seq = 1;
+      for(let y=0;y<state.rows;y++){
+        for(let x=0;x<state.cols;x++){
+          const actor = state.grid[y][x].type || 'Empty';
+          rows.push([seq, exportLevelNum, x, y, actor].join(','));
+          seq++;
+        }
+      }
+      const csv = '\ufeff' + rows.join('\r\n');
+      const fileName = `level_${exportLevelNum}.csv`;
+
+      if(state.saveDirHandle && window.showDirectoryPicker){
+        try {
+          const fileHandle = await state.saveDirHandle.getFileHandle(fileName, { create: true });
+          const writable = await fileHandle.createWritable();
+          await writable.write(csv);
+          await writable.close();
+          alert(`已保存到目录：${state.saveDirName}，文件名：${fileName}`);
+          return;
+        } catch (err) {
+          console.warn('目录写入失败，改为下载：', err);
+        }
+      }
+
+      downloadCSV(fileName, csv);
+    }
+
     const hoverInfo = computed(() => state.hoverCell ? cellInfo(state.hoverCell) : '无');
 
     return {
-      ...state,
+      ...toRefs(state),
       currentType,
       newCols,
       newRows,
@@ -188,6 +230,7 @@ createApp({
       resetGrid,
       clearCell,
       exportCSV,
+      chooseSaveDir,
       applyGridCss,
       applyGridSize,
       hoverInfo,

@@ -17,7 +17,12 @@
         <label>LevelNum: <input type="number" v-model.number="levelNum" min="1" /></label>
         <button @click="applyGridSize">调整网格</button>
         <button @click="resetGrid">重置</button>
+        <button @click="chooseSaveDir">选择导出目录</button>
         <button @click="exportCSV">导出 CSV</button>
+      </div>
+      <div class="controls">
+        <div>当前目标目录：<strong>{{ saveDirName }}</strong></div>
+        <div>若浏览器不支持目录写入，将自动下载文件。</div>
       </div>
     </header>
 
