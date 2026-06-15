@@ -36,7 +36,7 @@ BoxPushingGame 是一个基于 Unreal Engine 5 的简易推箱子（箱子推动
 - `Content/Python/DataTableCreator.py`：基于模板 DataTable 复制生成新的 DataTable 资产的脚本。
 
 **已知问题**
-- 在部分机器上，Epic Launcher/编辑器启动时可能卡在 "初始化 Python"；如果遇到该问题，可尝试使用任务管理器结束与 UE5 相关的 Python 进程（或全部 Python），然后重新启动编辑器。
+- 在部分机器上，Epic Launcher/编辑器启动时可能卡在 "初始化 Python"；如果遇到该问题，可尝试使用任务管理器结束与 UE5 相关的 Python 进程（或全部 Python），即可快速打开。
 
 **贡献与扩展建议**
 - 可扩展的方向：添加关卡目标（如箱子推到指定位置判定胜利）、计时/计步评分系统、AI 干扰、关卡编辑器工具、关卡/数据的自动化生成脚本。
