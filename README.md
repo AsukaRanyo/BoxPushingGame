@@ -45,3 +45,5 @@ BoxPushingGame 是一个基于 Unreal Engine 5 的简易推箱子（箱子推动
 - 项目文件：`BoxPushingGame.uproject`（项目配置）
 - 编辑器脚本：`Content/Python/`（查看 `level_creator.py`、`DataTableCreator.py`）
 
+**视频演示**
+- 【UE5.5推箱子小游戏以及其编辑器工具演示】https://www.bilibili.com/video/BV1doJg6kEG4?vd_source=e892ed89b31252b063298bc740fa6be6
